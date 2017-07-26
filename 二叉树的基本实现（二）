@@ -1,0 +1,380 @@
+#include<iostream>
+#include<stdlib.h>
+#include<assert.h>
+#include<stack>
+#include<queue>
+using namespace std;
+typedef struct BinaryTreeNode
+{
+	int _data;
+	struct BinaryTreeNode* _leftchild;
+	struct BinaryTreeNode* _rightchild;
+}BinaryTreeNode,*pBinaryTreeNode;
+
+typedef struct BinaryTree
+{
+	BinaryTreeNode *_root;
+}BinaryTree,*pBinaryTree;
+BinaryTreeNode* BuyTreeNode(int data)
+{
+	BinaryTreeNode* pnewNode=(BinaryTreeNode*)malloc(sizeof(BinaryTreeNode));
+	if(pnewNode==NULL)
+	{
+		printf("memory is out\n");
+		exit(EXIT_FAILURE);
+	}
+	pnewNode->_data=data;
+	pnewNode->_leftchild=NULL;
+	pnewNode->_rightchild=NULL;
+	return pnewNode;
+}
+void CreatBinaryTreeByPeorderTraversal(pBinaryTree pbt,const int arr[],const int size,const int k)
+{
+	BinaryTreeNode* pnewNode=NULL;
+	BinaryTreeNode* pcurNode=NULL;
+	stack<pBinaryTreeNode> mst;
+	int sz=(int)size;
+	int i=0;
+	assert(arr&&arr[0]!=k);//前序遍历第一个元素不能为k
+	pnewNode=BuyTreeNode(arr[i++]);
+
+	pbt->_root=pnewNode;
+	mst.push(pnewNode);
+	pcurNode=pbt->_root;
+	while(sz--)
+	{
+		if(arr[i]!=k)
+		{
+			pnewNode=BuyTreeNode(arr[i]);
+			pcurNode->_leftchild=pnewNode;
+			pcurNode=pnewNode;
+		}
+
+	}
+}
+BinaryTreeNode* RCreatBinaryTreeByPeorderTraversal(const int arr[],const int size,int& index,const int k)
+{
+	BinaryTreeNode* pnewNode=NULL;
+	if(arr[index]!=k&&index<size)
+	{
+		pnewNode=BuyTreeNode(arr[index]);
+		
+		pnewNode->_leftchild=RCreatBinaryTreeByPeorderTraversal(arr,size,++index,k);
+		pnewNode->_rightchild=RCreatBinaryTreeByPeorderTraversal(arr,size,++index,k);
+	}
+	return pnewNode;
+}
+void RPreOrder(BinaryTreeNode* root)
+{
+	if(root==NULL)
+		return;
+	printf("%d\n",root->_data);
+	RPreOrder(root->_leftchild);
+	RPreOrder(root->_rightchild);
+}
+void RInOrder(BinaryTreeNode* root)
+{
+	if(root==NULL)
+		return ;
+	RInOrder(root->_leftchild);
+	printf("%d\n",root->_data);
+	RInOrder(root->_rightchild);
+
+}
+void RPostOrder(BinaryTreeNode* root)
+{
+	if(root==NULL)
+		return ;
+	RPostOrder(root->_leftchild);
+	if(root->_rightchild)
+	{
+		RPostOrder(root->_rightchild);	
+	}
+
+	printf("%d\n",root->_data);
+}
+void PreOrder(BinaryTreeNode* root)
+{
+	BinaryTreeNode* pcurNode=NULL;
+	stack<BinaryTreeNode*> s;
+	assert(root);
+	s.push(root);
+	while(!s.empty())
+	{
+		pcurNode=s.top();
+		s.pop();
+		printf("%d\n",pcurNode->_data);
+		if(pcurNode->_rightchild)
+		{
+			s.push(pcurNode->_rightchild);
+		}
+		if(pcurNode->_leftchild)
+		{
+			s.push(pcurNode->_leftchild);
+		}
+
+	}
+	
+}
+void InOrder(BinaryTreeNode* root)
+{
+	BinaryTreeNode* pcurNode=root;
+	BinaryTreeNode* top=NULL;
+	stack<BinaryTreeNode*> s;
+	assert(root);
+	while(pcurNode||!s.empty())
+	{
+		while(pcurNode)
+		{
+			s.push(pcurNode);
+			pcurNode=pcurNode->_leftchild;
+		}
+
+		top=s.top();
+		s.pop();
+		printf("%d\n",top->_data);
+		pcurNode=top->_rightchild;
+	}
+}
+void PostOrder(BinaryTreeNode* root)
+{
+	stack<BinaryTreeNode*> s;
+	BinaryTreeNode* pcurNode=root;
+	BinaryTreeNode* top=NULL;
+	BinaryTreeNode* pre=NULL;
+	assert(root);
+	while(pcurNode||!s.empty())
+	{
+		while(pcurNode)
+		{
+			s.push(pcurNode);
+			pcurNode=pcurNode->_leftchild;
+		}
+
+		top=s.top();
+		if(top->_rightchild==NULL||top->_rightchild==pre)
+		{
+			cout<<top->_data<<endl;
+			pre=top;
+			s.pop();
+		}
+		else
+		{
+			pcurNode=top->_rightchild;
+			
+		}
+	}
+}
+void LevelOrder_ByStack(BinaryTreeNode* root)
+{
+	stack<BinaryTreeNode*> stack_1;
+	stack<BinaryTreeNode*> stack_2;
+	BinaryTreeNode* pcurNode=NULL;
+	stack_1.push(root);
+	if(root!=NULL)
+	{
+		while(!stack_1.empty() || !stack_2.empty())
+		{
+			while(!stack_1.empty())
+			{
+				printf("%d\n",stack_1.top()->_data);
+				stack_2.push(stack_1.top());
+				stack_1.pop();
+			}
+			while(!stack_2.empty())
+			{
+				pcurNode=stack_2.top();
+				if(pcurNode->_rightchild!=NULL)
+					stack_1.push(pcurNode->_rightchild);
+				if(pcurNode->_leftchild!=NULL)
+					stack_1.push(pcurNode->_leftchild);
+				
+				stack_2.pop();
+			}
+		}
+	}
+
+}
+void LevelOrder_ByQueue(BinaryTreeNode* root)
+{
+	BinaryTreeNode* pcurNode=NULL;
+	queue<BinaryTreeNode*> q;
+	assert(root);
+	q.push(root);
+	while(!q.empty())
+	{
+		pcurNode=q.front();
+		printf("%d\n",pcurNode->_data);
+		if(pcurNode->_leftchild)
+		{
+			q.push(pcurNode->_leftchild);
+		}
+		if(pcurNode->_rightchild)
+		{
+			q.push(pcurNode->_rightchild);
+		}
+		q.pop();
+	}
+}
+int Depth(BinaryTreeNode* root,int &depth)
+{
+	if(root==NULL)
+		return 0;
+	int leftdepth=Depth(root->_leftchild,depth);
+	int rightdepth=Depth(root->_rightchild,depth);
+	return leftdepth>rightdepth?leftdepth+1:rightdepth+1;
+}
+int Size(BinaryTreeNode* root)
+{
+	if(root==NULL)
+		return 0;
+	return Size(root->_leftchild)+Size(root->_rightchild)+1;
+}
+BinaryTreeNode* FindNode(BinaryTreeNode* root,const int& key)
+{
+	if(root==NULL)
+		return NULL;
+	if(root->_data==key)
+		return root;
+	BinaryTreeNode* key_Node=FindNode(root->_leftchild,key);
+	if(key_Node==NULL)
+		key_Node=FindNode(root->_rightchild,key);
+	return key_Node;
+
+
+}
+bool CompareTwoTree(BinaryTreeNode* root_1,BinaryTreeNode* root_2)
+{
+	BinaryTreeNode* pcur_1=NULL;
+	BinaryTreeNode* pcur_2=NULL;
+	stack<BinaryTreeNode*> s_1;
+	stack<BinaryTreeNode*> s_2;
+	s_1.push(root_1);
+	s_2.push(root_2);
+
+	assert(root_1&&root_2);
+
+	while(!s_2.empty())
+	{
+		if(s_1.empty())
+			return false;
+		pcur_1=s_1.top();
+		pcur_2=s_2.top();
+		s_1.pop();
+		s_2.pop();
+		if(pcur_1->_data!=pcur_2->_data)
+		{
+			return false;
+		}
+		else
+		{
+			if(pcur_1->_rightchild)
+				s_1.push(pcur_1->_rightchild);
+			if(pcur_2->_rightchild)
+				s_2.push(pcur_2->_rightchild);
+			if(pcur_1->_leftchild)
+				s_1.push(pcur_1->_leftchild);
+			if(pcur_2->_leftchild)
+				s_2.push(pcur_2->_leftchild);
+		}
+	}
+	return true;
+}
+void FloorOrder(BinaryTreeNode* root)
+{
+	queue<BinaryTreeNode*> q;
+	BinaryTreeNode* pcurNode=root;
+	assert(root);
+	q.push(root);
+	while(!q.empty())
+	{
+		pcurNode=q.front();
+		printf("%d\n",pcurNode->_data);
+		if(pcurNode->_leftchild)
+			q.push(pcurNode->_leftchild);
+		if(pcurNode->_rightchild)
+			q.push(pcurNode->_rightchild);
+		q.pop();
+	}
+}
+void CountLeaveNodes(BinaryTreeNode* root,int& count)
+{
+	if(root==NULL)
+		return ;
+
+	if(root->_leftchild==NULL&&root->_rightchild==NULL)
+	{
+		count++;
+	}
+
+	CountLeaveNodes(root->_leftchild,count);
+	CountLeaveNodes(root->_rightchild,count);
+
+}
+int CountKFloorNodes(BinaryTreeNode* root,int k)
+{
+	int flg=0;//用来判断第k层有没有开始压进去
+	int floor=0;
+	BinaryTreeNode* pcurNode=NULL;
+	stack<BinaryTreeNode*> s1;
+	stack<BinaryTreeNode*> s2;
+	assert(root);
+	s1.push(root);
+	while(floor!=k&&(!s1.empty()||!s2.empty()))
+	{
+			while(!s1.empty())
+			{
+				pcurNode=s1.top();
+				s1.pop();
+				s2.push(pcurNode);
+			}
+			while(!s2.empty())
+			{
+				pcurNode=s2.top();
+				s2.pop();
+				if(pcurNode->_leftchild)
+					s1.push(pcurNode->_leftchild);
+				if(pcurNode->_rightchild)
+					s1.push(pcurNode->_rightchild);
+			}
+			floor++;
+	}
+	if(floor==k)
+	{
+		if(!s1.empty())
+			return s1.size();
+		if(!s2.empty())
+			return s2.size();
+	}
+}
+void DestoryTree(BinaryTreeNode* root)
+{
+	if(root!=NULL)
+	{
+		if(root->_leftchild)
+		{
+			DestoryTree(root->_leftchild);
+			root->_leftchild=NULL;
+		}
+		if(root->_rightchild)
+		{
+			DestoryTree(root->_rightchild);
+			root->_rightchild=NULL;
+		}
+		if(root)
+		{
+			free(root);
+			root=NULL;
+		}
+	}
+}
+int GetFastTwoNode(BinaryTreeNode* root,int &distance)
+{
+	if(root==NULL)
+		return 0;
+	int leftdepth=GetFastTwoNode(root->_leftchild,distance);
+	int rightdepth=GetFastTwoNode(root->_rightchild,distance);
+	if((leftdepth+rightdepth)>distance)
+		distance=leftdepth+rightdepth;
+	return leftdepth>rightdepth?leftdepth+1:rightdepth+1;
+}
